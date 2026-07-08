@@ -9,17 +9,17 @@ export const metadata = {
 };
 
 export default async function Home() {
-  const listings = await prisma.listing.findMany({
-    where: { status: { in: ['approved', 'sold'] } },
-    orderBy: [{ status: 'asc' }, { approvedAt: 'desc' }],
-    take: 8,
-    include: { _count: { select: { inquiries: true } } },
-  });
+  // Run all three queries in parallel (not sequentially) so a remote Turso DB
+  // doesn't stack three round-trips and blow the function timeout.
+  const [listings, total, pending] = await Promise.all([
+    prisma.listing.findMany({
+      where: { status: { in: ['approved', 'sold'] } },
+      orderBy: [{ status: 'asc' }, { approvedAt: 'desc' }],
+      take: 8,
+    }),
+    prisma.listing.count({ where: { status: 'approved' } }),
+    prisma.listing.count({ where: { status: 'pending' } }),
+  ]);
 
-  const stats = {
-    total: await prisma.listing.count({ where: { status: 'approved' } }),
-    pending: await prisma.listing.count({ where: { status: 'pending' } }),
-  };
-
-  return <HomeClient listings={JSON.parse(JSON.stringify(listings))} stats={stats} />;
+  return <HomeClient listings={JSON.parse(JSON.stringify(listings))} stats={{ total, pending }} />;
 }
