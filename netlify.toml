@@ -1,0 +1,9 @@
+# Netlify build configuration for the MedeqX Next.js app.
+# The official Next.js runtime plugin handles SSR, ISR, API routes and image
+# optimization automatically — no manual publish directory needed.
+
+[build]
+  command = "npm run build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

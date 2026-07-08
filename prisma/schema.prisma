@@ -1,0 +1,83 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+  // Turso is accessed via the libSQL driver adapter, so the Prisma query engine
+  // is never used at runtime. Keep only the local ("native") engine for dev/
+  // generate — this avoids bundling ~120MB of unused Linux engines into the
+  // Netlify function (which was blowing past the function size limit).
+  binaryTargets   = ["native"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Listing {
+  id           String    @id @default(cuid())
+  ref          String    @unique
+
+  // Equipment
+  name         String
+  category     String
+  manufacturer String    @default("")
+  model        String    @default("")
+  serial       String    @default("")
+  year         Int?
+
+  // Condition
+  condition    String    // new | refurbished | used | parts
+  warranty     String    @default("none") // none | 1y | 2y | 3y
+  listingType  String    @default("for_sale") // for_sale | wanted
+
+  // Pricing
+  price        Float?
+  currency     String    @default("SAR")
+  payment      String    @default("")
+
+  // Location
+  location     String    @default("")
+  country      String    @default("Saudi Arabia")
+
+  // Content
+  description  String    @default("")
+  specs        String    @default("")
+  images       String    @default("[]") // JSON array of base64 strings
+  services     String    @default("[]") // JSON array of extra service options
+
+  // Workflow
+  status       String    @default("pending") // pending | approved | suspended | sold
+
+  // Seller
+  sellerName    String
+  sellerEmail   String
+  sellerPhone   String    @default("")
+  sellerCompany String    @default("")
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  approvedAt   DateTime?
+
+  inquiries    Inquiry[]
+}
+
+model Inquiry {
+  id           String   @id @default(cuid())
+  ref          String?  @unique
+  listingId    String
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  buyerName    String
+  buyerEmail   String
+  buyerPhone   String   @default("")
+  buyerCompany String   @default("")
+  message      String   @default("")
+  services     String   @default("[]")   // JSON array of selected additional services
+
+  createdAt    DateTime @default(now())
+}
+
+model Counter {
+  name  String @id
+  value Int    @default(1000)
+}

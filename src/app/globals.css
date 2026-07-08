@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F8FAFF;
+  --foreground: #0D1B3E;
+  --primary: #0057FF;
+  --primary-light: #EEF3FF;
+  --cyan: #00D4FF;
+  --green: #10B981;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --midnight: #0D1B3E;
+  --ice: #F8FAFF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* Latin: IBM Plex Sans. Arabic block falls back through IBM Plex Sans Arabic. */
+  font-family: var(--font-sans), var(--font-sans-ar), 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+  letter-spacing: -0.005em;
+}
+
+/* RTL text uses Plex Arabic primarily */
+html[dir='rtl'] body, [lang='ar'] {
+  font-family: var(--font-sans-ar), var(--font-sans), 'Segoe UI', system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+/* Mono for REF numbers, code, etc. */
+.font-mono, code, pre, kbd, samp {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ── Aurora background blobs ─────────────────────── */
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(88px);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: aurora-move 20s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes aurora-move {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  25%       { transform: translate(5%, -7%) scale(1.07); }
+  50%       { transform: translate(-5%, 7%) scale(0.96); }
+  75%       { transform: translate(7%, 4%) scale(1.04); }
+}
+
+/* ── Gradient text shimmer ───────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.shimmer-text {
+  background: linear-gradient(90deg, #0057FF 0%, #00D4FF 30%, #10B981 60%, #0057FF 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ── 3D card tilt ────────────────────────────────── */
+.tilt-card { transform-style: preserve-3d; will-change: transform; transition: transform 0.1s ease; }
+.tilt-image { transform: translateZ(35px); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+
+/* ── Scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ── RTL support ─────────────────────────────────── */
+[dir='rtl'] .rtl-flip { flex-direction: row-reverse; }
+
+/* ══════════════════════════════════════════════════
+   3D ORBITAL CAROUSEL  (JS-driven depth)
+══════════════════════════════════════════════════ */
+
+/* Outer scene container */
+.orb3-scene {
+  position: relative;
+  width: 520px;
+  height: 440px;
+  flex-shrink: 0;
+}
+
+/* Elliptical ambient glow beneath items */
+.orb3-glow {
+  position: absolute;
+  width: 400px;
+  height: 150px;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 87, 255, 0.30) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Decorative ellipse ring matching orbit path */
+.orb3-ring {
+  position: absolute;
+  width: 410px;
+  height: 140px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(0, 212, 255, 0.24);
+  box-shadow: 0 0 28px rgba(0, 87, 255, 0.13) inset;
+  pointer-events: none;
+}
+
+/* Stage — JS positions .orb-item children via inline transform */
+.orb3-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Each orbit item: centred at (50%,50%), JS translate moves it */
+.orb-item {
+  position: absolute;
+  width: 200px;
+  height: 158px;
+  top: 50%;
+  left: 50%;
+  margin: -79px 0 0 -100px;
+  will-change: transform, opacity;
+}
+
+/* White card with blue glow */
+.orb3-card {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px solid rgba(0, 87, 255, 0.22);
+  box-shadow:
+    0 14px 44px rgba(0, 87, 255, 0.28),
+    0 4px 14px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+}
+
+.orb3-img {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  object-fit: contain;
+  padding: 12px 12px 6px;
+}
+
+.orb3-label {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #0057FF;
+  text-align: center;
+  padding: 6px;
+  background: rgba(0, 87, 255, 0.06);
+  border-top: 1px solid rgba(0, 87, 255, 0.1);
+  white-space: nowrap;
+}
