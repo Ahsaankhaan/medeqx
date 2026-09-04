@@ -13,14 +13,17 @@ const listingSelect = {
 } as const;
 
 export default async function AdminMatchmakingPage() {
+  // Only AVAILABLE inventory belongs in the matching pool — hide sold & suspended
+  // (they're gone / taken down). Keeps approved (live), pending, and manual leads.
+  const availableStatus = { notIn: ['sold', 'suspended'] };
   const [forSale, wanted, inquiries] = await Promise.all([
     prisma.listing.findMany({
-      where: { listingType: 'for_sale' },
+      where: { listingType: 'for_sale', status: availableStatus },
       select: listingSelect,
       orderBy: { createdAt: 'desc' },
     }),
     prisma.listing.findMany({
-      where: { listingType: 'wanted' },
+      where: { listingType: 'wanted', status: availableStatus },
       select: listingSelect,
       orderBy: { createdAt: 'desc' },
     }),
