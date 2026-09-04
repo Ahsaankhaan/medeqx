@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { LayoutDashboard, ListChecks, BarChart3, MessageSquare, LogOut, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, ListChecks, BarChart3, MessageSquare, LogOut, ExternalLink, Handshake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ITEMS = [
-  { href: '/admin',           label: 'Dashboard', icon: LayoutDashboard, match: (p: string) => p === '/admin' },
-  { href: '/admin/listings',  label: 'Listings',  icon: ListChecks,      match: (p: string) => p.startsWith('/admin/listings') },
-  { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare,   match: (p: string) => p.startsWith('/admin/inquiries') },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3,       match: (p: string) => p.startsWith('/admin/analytics') },
+  { href: '/admin',            label: 'Dashboard',   icon: LayoutDashboard, match: (p: string) => p === '/admin' },
+  { href: '/admin/matchmaking', label: 'Matchmaking', icon: Handshake,      match: (p: string) => p.startsWith('/admin/matchmaking') },
+  { href: '/admin/listings',   label: 'Listings',    icon: ListChecks,      match: (p: string) => p.startsWith('/admin/listings') },
+  { href: '/admin/inquiries',  label: 'Inquiries',   icon: MessageSquare,   match: (p: string) => p.startsWith('/admin/inquiries') },
+  { href: '/admin/analytics',  label: 'Analytics',   icon: BarChart3,       match: (p: string) => p.startsWith('/admin/analytics') },
 ];
 
 const INQUIRY_LAST_VIEW_KEY = 'medeqx_admin_lastInquiryView';

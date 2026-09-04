@@ -10,8 +10,10 @@ export default async function AdminListingsPage({
 }) {
   const { status, q } = await searchParams;
 
-  // Load ALL listings — filtering happens client-side for instant tab switching
+  // Load ALL listings — filtering happens client-side for instant tab switching.
+  // Exclude status 'lead' — those are Matchmaking-only pool entries, not real listings.
   const listings = await prisma.listing.findMany({
+    where: { status: { not: 'lead' } },
     orderBy: { createdAt: 'desc' },
   });
 
