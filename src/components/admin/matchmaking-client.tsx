@@ -4,7 +4,8 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Handshake, Search, Plus, Phone, Mail, MessageCircle, Trash2, X, Loader2,
-  ArrowLeftRight, Package, Building2, MapPin, Flame,
+  ArrowLeftRight, Package, Building2, MapPin, Flame, Pencil, ChevronDown,
+  ChevronsDownUp, ChevronsUpDown,
 } from 'lucide-react';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { CATEGORIES, getCategoryBySlug } from '@/lib/categories';
@@ -25,6 +26,7 @@ interface InquiryRow {
 interface Party {
   kind: 'seller' | 'buyer';
   id: string; ref: string; category: string; equipment: string; detail: string;
+  manufacturer: string; model: string;
   price: number | null; currency: string; location: string; status: string;
   contactName: string; contactCompany: string; contactPhone: string; contactEmail: string;
   note: string; date: number; isLead: boolean;
@@ -82,9 +84,11 @@ function Contact({ p }: { p: Party }) {
 }
 
 // ── Party card ────────────────────────────────────────────────────────
-function PartyCard({ p, onDelete }: { p: Party; onDelete: (id: string) => void }) {
+function PartyCard({ p, onEdit, onDelete }: { p: Party; onEdit: (p: Party) => void; onDelete: (id: string) => void }) {
   const st = STATUS_STYLE[p.status] ?? { label: p.status, cls: 'bg-slate-100 text-slate-500 border-slate-200' };
   const dim = p.status === 'sold' || p.status === 'suspended';
+  const isInquiry = p.status === 'inquiry';
+  const listingEditHref = (!p.isLead && !isInquiry) ? `/admin/listings/${p.id}/edit` : null;
   return (
     <div className={`rounded-xl border p-3 ${dim ? 'border-slate-100 bg-slate-50/50 opacity-75' : 'border-slate-200 bg-white'}`}>
       <div className="flex items-start justify-between gap-2">
@@ -105,11 +109,27 @@ function PartyCard({ p, onDelete }: { p: Party; onDelete: (id: string) => void }
         <Contact p={p} />
       </div>
       {p.note && <p className="mt-2 rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] text-slate-600 italic">“{p.note}”</p>}
-      {p.isLead && (
-        <button onClick={() => onDelete(p.id)}
-          className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 hover:text-red-500 transition-colors">
-          <Trash2 size={10} /> Remove lead
-        </button>
+      {(p.isLead || listingEditHref) && (
+        <div className="mt-2 flex items-center gap-3">
+          {p.isLead && (
+            <button onClick={() => onEdit(p)}
+              className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 hover:text-[#0057FF] transition-colors">
+              <Pencil size={10} /> Edit
+            </button>
+          )}
+          {listingEditHref && (
+            <a href={listingEditHref} target="_blank" rel="noopener"
+              className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 hover:text-[#0057FF] transition-colors">
+              <Pencil size={10} /> Edit listing
+            </a>
+          )}
+          {p.isLead && (
+            <button onClick={() => onDelete(p.id)}
+              className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 hover:text-red-500 transition-colors">
+              <Trash2 size={10} /> Remove
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
@@ -122,12 +142,19 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState<Party | null>(null);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const toggleCat = (slug: string) => setCollapsed((s) => {
+    const n = new Set(s); n.has(slug) ? n.delete(slug) : n.add(slug); return n;
+  });
 
   // Normalise everything into a flat list of parties
   const parties = useMemo<Party[]>(() => {
     const sellers: Party[] = forSale.map((l) => ({
       kind: 'seller', id: l.id, ref: l.ref, category: l.category,
       equipment: l.name, detail: [l.manufacturer, l.model].filter(Boolean).join(' '),
+      manufacturer: l.manufacturer, model: l.model,
       price: l.price, currency: l.currency, location: l.location, status: l.status,
       contactName: l.sellerName, contactCompany: l.sellerCompany,
       contactPhone: l.sellerPhone, contactEmail: l.sellerEmail,
@@ -137,6 +164,7 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
     const wantedBuyers: Party[] = wanted.map((l) => ({
       kind: 'buyer', id: l.id, ref: l.ref, category: l.category,
       equipment: l.name, detail: [l.manufacturer, l.model].filter(Boolean).join(' '),
+      manufacturer: l.manufacturer, model: l.model,
       price: l.price, currency: l.currency, location: l.location, status: l.status,
       contactName: l.sellerName, contactCompany: l.sellerCompany,
       contactPhone: l.sellerPhone, contactEmail: l.sellerEmail,
@@ -146,6 +174,7 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
       kind: 'buyer', id: q.id, ref: q.ref ?? q.id, category: q.listing?.category ?? '',
       equipment: q.listing?.name ?? 'General inquiry',
       detail: q.listing ? `Inquired about ${q.listing.ref}` : '',
+      manufacturer: '', model: '',
       price: null, currency: 'SAR', location: '', status: 'inquiry',
       contactName: q.buyerName, contactCompany: q.buyerCompany,
       contactPhone: q.buyerPhone, contactEmail: q.buyerEmail,
@@ -187,6 +216,10 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
   const hotGroups = groups.filter((g) => g.hot);
   const totalSellers = parties.filter((p) => p.kind === 'seller').length;
   const totalBuyers = parties.filter((p) => p.kind === 'buyer').length;
+
+  const collapseAll = () => setCollapsed(new Set(groups.map((g) => g.slug)));
+  const expandAll = () => setCollapsed(new Set());
+  const allCollapsed = groups.length > 0 && groups.every((g) => collapsed.has(g.slug));
 
   const handleDelete = async (id: string) => {
     if (!confirm('Remove this lead from the pool? This cannot be undone.')) return;
@@ -231,12 +264,20 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search equipment, brand, person, company, city…"
-            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2.5 text-sm outline-none focus:border-[#0057FF] shadow-sm" />
+        {/* Search + collapse control */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search equipment, brand, person, company, city…"
+              className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2.5 text-sm outline-none focus:border-[#0057FF] shadow-sm" />
+          </div>
+          {groups.length > 0 && (
+            <button onClick={allCollapsed ? expandAll : collapseAll}
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-600 hover:border-[#0057FF] hover:text-[#0057FF] shadow-sm transition-colors">
+              {allCollapsed ? <><ChevronsUpDown size={14} /> Expand all</> : <><ChevronsDownUp size={14} /> Collapse all</>}
+            </button>
+          )}
         </div>
 
         {/* Hot match chips */}
@@ -266,17 +307,22 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
           </div>
         ) : (
           <div className="flex flex-col gap-5">
-            {groups.map((g) => (
+            {groups.map((g) => {
+              const isOpen = !collapsed.has(g.slug);
+              return (
               <div key={g.slug} id={`cat-${g.slug}`} className={`rounded-2xl border bg-white shadow-sm overflow-hidden ${g.hot ? 'border-orange-300 ring-1 ring-orange-200' : 'border-slate-200'}`}>
-                <div className={`flex items-center justify-between px-5 py-3 ${g.hot ? 'bg-orange-50' : 'bg-slate-50'}`}>
+                <button onClick={() => toggleCat(g.slug)}
+                  className={`w-full flex items-center justify-between px-5 py-3 text-left transition-colors ${g.hot ? 'bg-orange-50 hover:bg-orange-100' : 'bg-slate-50 hover:bg-slate-100'}`}>
                   <h2 className="font-bold text-[#0D1B3E] flex items-center gap-2">
+                    <ChevronDown size={16} className={`text-slate-400 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
                     {g.hot && <Flame size={15} className="text-orange-500" />}
                     {catName(g.slug)}
                   </h2>
                   <span className="text-xs font-semibold text-slate-500">
                     {g.sellers.length} selling · {g.buyers.length} buying
                   </span>
-                </div>
+                </button>
+                {isOpen && (
                 <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                   {/* Sellers */}
                   <div className="p-4">
@@ -286,7 +332,7 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
                     <div className="flex flex-col gap-2">
                       {g.sellers.length === 0
                         ? <p className="text-xs text-slate-400 italic">No sellers in this category.</p>
-                        : g.sellers.map((p) => <PartyCard key={p.id} p={p} onDelete={handleDelete} />)}
+                        : g.sellers.map((p) => <PartyCard key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete} />)}
                     </div>
                   </div>
                   {/* Buyers */}
@@ -297,29 +343,42 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
                     <div className="flex flex-col gap-2">
                       {g.buyers.length === 0
                         ? <p className="text-xs text-slate-400 italic">No buyers in this category.</p>
-                        : g.buyers.map((p) => <PartyCard key={p.id} p={p} onDelete={handleDelete} />)}
+                        : g.buyers.map((p) => <PartyCard key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete} />)}
                     </div>
                   </div>
                 </div>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {showAdd && <AddLeadModal onClose={() => setShowAdd(false)} onSaved={() => { setShowAdd(false); router.refresh(); }} />}
+      {(showAdd || editing) && (
+        <AddLeadModal
+          existing={editing}
+          onClose={() => { setShowAdd(false); setEditing(null); }}
+          onSaved={() => { setShowAdd(false); setEditing(null); router.refresh(); }}
+        />
+      )}
     </div>
   );
 }
 
 // ── Add-lead modal ────────────────────────────────────────────────────
-function AddLeadModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
-  const [side, setSide] = useState<'for_sale' | 'wanted'>('for_sale');
+function AddLeadModal({ existing, onClose, onSaved }: { existing?: Party | null; onClose: () => void; onSaved: () => void }) {
+  const isEdit = !!existing;
+  const [side, setSide] = useState<'for_sale' | 'wanted'>(existing ? (existing.kind === 'buyer' ? 'wanted' : 'for_sale') : 'for_sale');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [f, setF] = useState({
-    name: '', category: '', manufacturer: '', model: '', price: '', location: '',
-    contactName: '', contactCompany: '', contactPhone: '', contactEmail: '', note: '',
+    name: existing?.equipment ?? '', category: existing?.category ?? '',
+    manufacturer: existing?.manufacturer ?? '', model: existing?.model ?? '',
+    price: existing?.price != null ? String(existing.price) : '', location: existing?.location ?? '',
+    contactName: existing?.contactName ?? '', contactCompany: existing?.contactCompany ?? '',
+    contactPhone: existing?.contactPhone ?? '', contactEmail: existing?.contactEmail ?? '',
+    note: existing?.note ?? '',
   });
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
 
@@ -327,15 +386,15 @@ function AddLeadModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =
     setBusy(true); setErr(null);
     try {
       const res = await fetch('/api/admin/leads', {
-        method: 'POST', credentials: 'include',
+        method: isEdit ? 'PATCH' : 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ side, ...f }),
+        body: JSON.stringify({ ...(isEdit ? { id: existing!.id } : {}), side, ...f }),
       });
       const j = await res.json();
-      if (!res.ok) { setErr(j.error || 'Failed to add'); return; }
+      if (!res.ok) { setErr(j.error || 'Failed to save'); return; }
       onSaved();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Failed to add');
+      setErr(e instanceof Error ? e.message : 'Failed to save');
     } finally { setBusy(false); }
   };
 
@@ -345,7 +404,7 @@ function AddLeadModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 sticky top-0 bg-white">
-          <h3 className="font-bold text-[#0D1B3E]">Add a lead to the pool</h3>
+          <h3 className="font-bold text-[#0D1B3E]">{isEdit ? 'Edit lead' : 'Add a lead to the pool'}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
         </div>
         <div className="p-5 flex flex-col gap-3">
@@ -430,7 +489,7 @@ function AddLeadModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =
           <button onClick={onClose} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
           <button onClick={submit} disabled={busy}
             className="inline-flex items-center gap-1.5 rounded-lg bg-[#0057FF] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a6aff] disabled:opacity-60">
-            {busy ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Add to pool
+            {busy ? <Loader2 size={14} className="animate-spin" /> : (isEdit ? <Pencil size={14} /> : <Plus size={14} />)} {isEdit ? 'Save changes' : 'Add to pool'}
           </button>
         </div>
       </div>

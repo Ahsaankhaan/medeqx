@@ -52,6 +52,48 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Edit a lead (only status 'lead' rows — real listings are edited in the Listings tab).
+export async function PATCH(req: NextRequest) {
+  if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const b = await req.json();
+    const id = b.id;
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    const row = await prisma.listing.findUnique({ where: { id }, select: { status: true } });
+    if (!row || row.status !== 'lead') {
+      return NextResponse.json({ error: 'Only manually-added leads can be edited here' }, { status: 400 });
+    }
+    const name = (b.name || '').trim();
+    const contact = (b.contactName || '').trim();
+    if (!name) return NextResponse.json({ error: 'Equipment name is required' }, { status: 400 });
+    if (!contact) return NextResponse.json({ error: 'Contact name is required' }, { status: 400 });
+
+    await prisma.listing.update({
+      where: { id },
+      data: {
+        name,
+        category: (b.category || '').trim() || 'other',
+        manufacturer: (b.manufacturer || '').trim(),
+        model: (b.model || '').trim(),
+        listingType: b.side === 'wanted' ? 'wanted' : 'for_sale',
+        price: b.price ? parseFloat(b.price) : null,
+        location: (b.location || '').trim(),
+        description: (b.note || '').trim(),
+        sellerName: contact,
+        sellerEmail: (b.contactEmail || '').trim(),
+        sellerPhone: (b.contactPhone || '').trim(),
+        sellerCompany: (b.contactCompany || '').trim(),
+      },
+    });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Failed to update lead' },
+      { status: 400 }
+    );
+  }
+}
+
 // Delete a lead (only status 'lead' rows can be removed here — protects real listings).
 export async function DELETE(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
