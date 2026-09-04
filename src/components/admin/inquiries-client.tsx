@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Mail, Phone, Building2, MessageSquare, ExternalLink, Eye, Tag, Calendar } from 'lucide-react';
+import { Search, Mail, Phone, Building2, MessageSquare, ExternalLink, Eye, Tag, Calendar, CheckCircle2, XCircle, RotateCcw, Trash2, Loader2 } from 'lucide-react';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { Badge } from '@/components/ui/badge';
 import type { ListingStatus } from '@/types';
@@ -16,6 +17,7 @@ type InquiryWithListing = {
   buyerCompany: string;
   message: string;
   services?: string;
+  status?: string;
   createdAt: string;
   listing: {
     id: string;
@@ -42,24 +44,72 @@ function parseServices(raw: string | null | undefined): string[] {
   } catch { return []; }
 }
 
+const STATUS_META: Record<string, { label: string; cls: string }> = {
+  open:      { label: 'Open',      cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+  closed:    { label: 'Closed',    cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  cancelled: { label: 'Cancelled', cls: 'bg-slate-100 text-slate-500 border-slate-200' },
+};
+function StatusPill({ status }: { status: string }) {
+  const m = STATUS_META[status] ?? STATUS_META.open;
+  return <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${m.cls}`}>{m.label}</span>;
+}
+
+const FILTERS = ['all', 'open', 'closed', 'cancelled'] as const;
+
 export function AdminInquiriesClient({ inquiries }: { inquiries: InquiryWithListing[] }) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [tab, setTab] = useState<(typeof FILTERS)[number]>('all');
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const st = (i: InquiryWithListing) => i.status || 'open';
+
+  const setStatus = async (id: string, status: string) => {
+    setBusyId(id);
+    try {
+      await fetch('/api/admin/inquiries', {
+        method: 'PATCH', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }),
+      });
+      router.refresh();
+    } finally { setBusyId(null); }
+  };
+  const remove = async (id: string) => {
+    if (!confirm('Permanently delete this inquiry? This cannot be undone.')) return;
+    setBusyId(id);
+    try {
+      await fetch('/api/admin/inquiries', {
+        method: 'DELETE', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+      });
+      router.refresh();
+    } finally { setBusyId(null); }
+  };
+
+  const counts = useMemo(() => {
+    const c = { all: inquiries.length, open: 0, closed: 0, cancelled: 0 } as Record<string, number>;
+    for (const i of inquiries) c[st(i)] = (c[st(i)] ?? 0) + 1;
+    return c;
+  }, [inquiries]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return inquiries;
-    return inquiries.filter((i) =>
-      i.ref?.toLowerCase().includes(q) ||
-      i.buyerName?.toLowerCase().includes(q) ||
-      i.buyerEmail?.toLowerCase().includes(q) ||
-      i.buyerPhone?.toLowerCase().includes(q) ||
-      i.buyerCompany?.toLowerCase().includes(q) ||
-      i.listing?.ref?.toLowerCase().includes(q) ||
-      i.listing?.name?.toLowerCase().includes(q) ||
-      i.listing?.sellerName?.toLowerCase().includes(q)
-    );
-  }, [inquiries, search]);
+    return inquiries.filter((i) => {
+      if (tab !== 'all' && st(i) !== tab) return false;
+      if (!q) return true;
+      return (
+        i.ref?.toLowerCase().includes(q) ||
+        i.buyerName?.toLowerCase().includes(q) ||
+        i.buyerEmail?.toLowerCase().includes(q) ||
+        i.buyerPhone?.toLowerCase().includes(q) ||
+        i.buyerCompany?.toLowerCase().includes(q) ||
+        i.listing?.ref?.toLowerCase().includes(q) ||
+        i.listing?.name?.toLowerCase().includes(q) ||
+        i.listing?.sellerName?.toLowerCase().includes(q)
+      );
+    });
+  }, [inquiries, search, tab]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFF]">
@@ -79,10 +129,22 @@ export function AdminInquiriesClient({ inquiries }: { inquiries: InquiryWithList
           </div>
         </div>
 
+        {/* Status filter tabs */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          {FILTERS.map((f) => (
+            <button key={f} onClick={() => setTab(f)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold capitalize transition-colors border ${
+                tab === f ? 'bg-[#0057FF] text-white border-[#0057FF]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#0057FF]'
+              }`}>
+              {f} <span className={tab === f ? 'text-white/80' : 'text-slate-400'}>({counts[f] ?? 0})</span>
+            </button>
+          ))}
+        </div>
+
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
             <MessageSquare size={32} className="text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No inquiries yet</p>
+            <p className="text-slate-500 font-medium">No inquiries {tab === 'all' ? 'yet' : `marked "${tab}"`}</p>
             <p className="text-slate-400 text-sm mt-1">When buyers submit an inquiry, it will appear here.</p>
           </div>
         ) : (
@@ -117,12 +179,40 @@ export function AdminInquiriesClient({ inquiries }: { inquiries: InquiryWithList
                     <div className="hidden sm:block text-xs text-slate-400 whitespace-nowrap min-w-[100px] text-right">
                       {new Date(inq.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })}
                     </div>
+                    <StatusPill status={st(inq)} />
                     <Eye size={14} className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Expanded detail */}
                   {isOpen && (
-                    <div className="border-t border-slate-100 bg-slate-50/40 px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="border-t border-slate-100 bg-slate-50/40">
+                    {/* Action bar */}
+                    <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b border-slate-100">
+                      <span className="text-xs font-semibold text-slate-400 mr-1">Mark as:</span>
+                      {st(inq) !== 'closed' && (
+                        <button onClick={() => setStatus(inq.id, 'closed')} disabled={busyId === inq.id}
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors disabled:opacity-60">
+                          {busyId === inq.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Closed
+                        </button>
+                      )}
+                      {st(inq) !== 'cancelled' && (
+                        <button onClick={() => setStatus(inq.id, 'cancelled')} disabled={busyId === inq.id}
+                          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-60">
+                          <XCircle size={12} /> Cancelled
+                        </button>
+                      )}
+                      {st(inq) !== 'open' && (
+                        <button onClick={() => setStatus(inq.id, 'open')} disabled={busyId === inq.id}
+                          className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-60">
+                          <RotateCcw size={12} /> Reopen
+                        </button>
+                      )}
+                      <button onClick={() => remove(inq.id)} disabled={busyId === inq.id}
+                        className="ml-auto inline-flex items-center gap-1 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60">
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    </div>
+                    <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Buyer details */}
                       <div>
                         <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">Buyer Information</h3>
@@ -224,6 +314,7 @@ export function AdminInquiriesClient({ inquiries }: { inquiries: InquiryWithList
                         )}
                       </div>
                     </div>
+                   </div>
                   )}
                 </div>
               );

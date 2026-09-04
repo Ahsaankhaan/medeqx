@@ -73,6 +73,7 @@ model Inquiry {
   buyerCompany String   @default("")
   message      String   @default("")
   services     String   @default("[]")   // JSON array of selected additional services
+  status       String   @default("open") // open | closed | cancelled
 
   createdAt    DateTime @default(now())
 }
