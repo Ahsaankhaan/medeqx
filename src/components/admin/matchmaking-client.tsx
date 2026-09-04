@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { CATEGORIES, getCategoryBySlug } from '@/lib/categories';
+import { DealFormModal, type DealFields } from '@/components/admin/deal-form-modal';
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface ListingRow {
@@ -84,7 +85,7 @@ function Contact({ p }: { p: Party }) {
 }
 
 // ── Party card ────────────────────────────────────────────────────────
-function PartyCard({ p, onEdit, onDelete }: { p: Party; onEdit: (p: Party) => void; onDelete: (id: string) => void }) {
+function PartyCard({ p, onEdit, onDelete, onRecordDeal }: { p: Party; onEdit: (p: Party) => void; onDelete: (id: string) => void; onRecordDeal: (p: Party) => void }) {
   const st = STATUS_STYLE[p.status] ?? { label: p.status, cls: 'bg-slate-100 text-slate-500 border-slate-200' };
   const dim = p.status === 'sold' || p.status === 'suspended';
   const isInquiry = p.status === 'inquiry';
@@ -107,6 +108,10 @@ function PartyCard({ p, onEdit, onDelete }: { p: Party; onEdit: (p: Party) => vo
           {p.contactCompany && <span className="font-normal text-slate-400 inline-flex items-center gap-0.5"><Building2 size={10} /> {p.contactCompany}</span>}
         </p>
         <Contact p={p} />
+        <button onClick={() => onRecordDeal(p)}
+          className="mt-2 inline-flex items-center gap-1 rounded-lg border border-[#0057FF]/30 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-[#0057FF] hover:bg-blue-100 transition-colors">
+          <Handshake size={11} /> Record deal
+        </button>
       </div>
       {p.note && <p className="mt-2 rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] text-slate-600 italic">“{p.note}”</p>}
       {(p.isLead || listingEditHref) && (
@@ -144,6 +149,14 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<Party | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [dealPrefill, setDealPrefill] = useState<Partial<DealFields> | null>(null);
+
+  const recordDeal = (p: Party) => {
+    const contact = [p.contactPhone, p.contactEmail].filter(Boolean).join(' / ');
+    setDealPrefill(p.kind === 'seller'
+      ? { equipment: p.equipment, category: p.category, sellerName: p.contactName, sellerContact: contact, sellerListingRef: p.ref }
+      : { equipment: p.equipment, category: p.category, buyerName: p.contactName, buyerContact: contact });
+  };
 
   const toggleCat = (slug: string) => setCollapsed((s) => {
     const n = new Set(s); n.has(slug) ? n.delete(slug) : n.add(slug); return n;
@@ -332,7 +345,7 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
                     <div className="flex flex-col gap-2">
                       {g.sellers.length === 0
                         ? <p className="text-xs text-slate-400 italic">No sellers in this category.</p>
-                        : g.sellers.map((p) => <PartyCard key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete} />)}
+                        : g.sellers.map((p) => <PartyCard key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete} onRecordDeal={recordDeal} />)}
                     </div>
                   </div>
                   {/* Buyers */}
@@ -343,7 +356,7 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
                     <div className="flex flex-col gap-2">
                       {g.buyers.length === 0
                         ? <p className="text-xs text-slate-400 italic">No buyers in this category.</p>
-                        : g.buyers.map((p) => <PartyCard key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete} />)}
+                        : g.buyers.map((p) => <PartyCard key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete} onRecordDeal={recordDeal} />)}
                     </div>
                   </div>
                 </div>
@@ -360,6 +373,13 @@ export function MatchmakingClient({ forSale, wanted, inquiries }: {
           existing={editing}
           onClose={() => { setShowAdd(false); setEditing(null); }}
           onSaved={() => { setShowAdd(false); setEditing(null); router.refresh(); }}
+        />
+      )}
+      {dealPrefill && (
+        <DealFormModal
+          prefill={dealPrefill}
+          onClose={() => setDealPrefill(null)}
+          onSaved={() => { setDealPrefill(null); router.refresh(); }}
         />
       )}
     </div>

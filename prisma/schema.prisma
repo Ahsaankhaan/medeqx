@@ -82,3 +82,30 @@ model Counter {
   name  String @id
   value Int    @default(1000)
 }
+
+// A brokered / closed deal — the record of a completed match between a seller
+// and a buyer, capturing which listing it came from and the commission earned.
+model Deal {
+  id               String    @id @default(cuid())
+  ref              String?   @unique                 // DEAL-XXXX
+  equipment        String
+  category         String    @default("")
+
+  // Denormalised so the record stands alone even if the source is later removed.
+  sellerName       String    @default("")
+  sellerContact    String    @default("")            // phone / email
+  sellerListingRef String    @default("")            // REF of the listing/lead sold
+
+  buyerName        String    @default("")
+  buyerContact     String    @default("")            // phone / email
+
+  salePrice        Float?
+  commission       Float?                             // what MedeqX earned
+  currency         String    @default("SAR")
+
+  status           String    @default("brokered")    // brokered | completed
+  notes            String    @default("")
+
+  closedAt         DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+}

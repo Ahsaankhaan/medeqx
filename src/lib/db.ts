@@ -53,6 +53,10 @@ export async function generateInquiryRef(): Promise<string> {
   return nextSequential('inquiry', 'INQ');
 }
 
+export async function generateDealRef(): Promise<string> {
+  return nextSequential('deal', 'DEAL');
+}
+
 /** @deprecated kept for backward compat — use generateListingRef() */
 export function generateRef(): string {
   const num = Math.floor(1000 + Math.random() * 9000);
