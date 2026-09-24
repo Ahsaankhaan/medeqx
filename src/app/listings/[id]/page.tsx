@@ -5,7 +5,15 @@ import Script from 'next/script';
 import type { Metadata } from 'next';
 import { getCategoryBySlug } from '@/lib/categories';
 
-export const dynamic = 'force-dynamic';
+// Cache each listing page for 10 minutes (ISR) instead of running a function on
+// every crawler/visitor hit — this is the single biggest credit saving, since
+// crawlers hit every listing URL. Status changes reflect within ~10 min.
+export const revalidate = 600;
+
+// Nothing prerendered at build; pages generate on-demand from the live DB, then cache.
+export function generateStaticParams() {
+  return [] as { id: string }[];
+}
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.medeqx.com';
 

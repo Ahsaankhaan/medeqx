@@ -5,7 +5,19 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.medeqx.com';
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: ['/admin', '/api', '/api/'] },
+      { userAgent: '*', allow: '/', disallow: ['/admin', '/api', '/api/'], crawlDelay: 10 },
+      // Block heavy commercial scrapers — they crawl aggressively but bring no
+      // search traffic, and every hit costs a function invocation.
+      { userAgent: 'AhrefsBot', disallow: '/' },
+      { userAgent: 'SemrushBot', disallow: '/' },
+      { userAgent: 'MJ12bot', disallow: '/' },
+      { userAgent: 'DotBot', disallow: '/' },
+      { userAgent: 'DataForSeoBot', disallow: '/' },
+      { userAgent: 'BLEXBot', disallow: '/' },
+      { userAgent: 'PetalBot', disallow: '/' },
+      { userAgent: 'MojeekBot', disallow: '/' },
+      { userAgent: 'SeznamBot', disallow: '/' },
+      { userAgent: 'Barkrowler', disallow: '/' },
       // Explicitly allow AI crawlers (AEO — answer engine optimisation)
       { userAgent: 'GPTBot',           allow: '/', disallow: ['/admin', '/api'] },
       { userAgent: 'OAI-SearchBot',    allow: '/', disallow: ['/admin', '/api'] },

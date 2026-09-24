@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/db';
 import { HomeClient } from '@/components/home-client';
 
-export const dynamic = 'force-dynamic';
+// Cache the homepage and re-render at most every 5 minutes (ISR) instead of
+// running a function on every visit/crawl. New listings appear within ~5 min.
+export const revalidate = 300;
 
 export const metadata = {
   title: 'MedeqX — Buy & Sell Used Medical Equipment Saudi Arabia',

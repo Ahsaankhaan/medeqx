@@ -30,6 +30,15 @@ export async function GET(req: NextRequest) {
       where,
       orderBy: [{ status: 'asc' }, { approvedAt: 'desc' }],
       take,
+      // Light, public-safe fields only — NO base64 images (huge payload) and NO
+      // seller email/phone (PII). Keeps this endpoint cheap and safe.
+      select: {
+        id: true, ref: true, name: true, category: true, manufacturer: true,
+        model: true, condition: true, warranty: true, listingType: true,
+        price: true, currency: true, location: true, country: true,
+        description: true, status: true, sellerCompany: true,
+        createdAt: true, approvedAt: true,
+      },
     });
 
     return NextResponse.json({ listings });
