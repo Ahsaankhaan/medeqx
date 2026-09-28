@@ -236,8 +236,8 @@ export function PostListingClient() {
                 </div>
 
                 <div>
-                  <FieldLabel>{t.post.fields.manufacturer}</FieldLabel>
-                  <input {...register('manufacturer')} placeholder="e.g. Siemens, GE, Philips"
+                  <FieldLabel>{t.post.fields.manufacturer}{lang === 'ar' ? ' (اختياري)' : ' (optional)'}</FieldLabel>
+                  <input {...register('manufacturer')} placeholder={lang === 'ar' ? 'مثال: سيمنس، جنرال إلكتريك — أو اتركه فارغاً للأثاث/الخردة' : 'e.g. Siemens, GE — or leave blank for furniture / scrap'}
                     className={inputCls(!!errors.manufacturer)} />
                   <FieldError message={errors.manufacturer?.message} />
                 </div>
