@@ -1,11 +1,15 @@
 import { prisma } from '@/lib/db';
 import { SearchClient } from '@/components/search-client';
+import { mapImageRefs } from '@/lib/listing-images';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Search — MedeqX',
   description: 'Search medical equipment listings on MedeqX marketplace.',
+  // Search result pages are dynamic and infinitely combinable via query params —
+  // keep crawlers out so they don't run a function per query combination.
+  robots: { index: false, follow: true },
 };
 
 export default async function SearchPage({
@@ -60,7 +64,7 @@ export default async function SearchPage({
 
   return (
     <SearchClient
-      listings={JSON.parse(JSON.stringify(listings))}
+      listings={JSON.parse(JSON.stringify(mapImageRefs(listings)))}
       query={q ?? ''}
       category={category ?? ''}
       condition={condition ?? ''}

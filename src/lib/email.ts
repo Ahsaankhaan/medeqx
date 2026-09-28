@@ -61,7 +61,7 @@ export async function sendListingSubmitted(listing: {
         <tr><td style="padding:6px;color:#64748b">Status</td><td style="padding:6px">Under Review</td></tr>
       </table>
       <p>We will email you again once your listing is approved and live on the marketplace (usually within 24 hours).</p>
-      <p style="font-size:12px;color:#64748b">A 4% commission applies on confirmed sale value (minimum SAR 500), charged only on successful sale.</p>`),
+      <p style="font-size:12px;color:#64748b">A 4% commission applies to both the buyer and the seller on confirmed sale value (minimum SAR 500 from each side), charged only on a successful sale.</p>`),
     'LISTING_SUBMITTED_SELLER').catch(() => {});
 
   // 2) Admin notification
@@ -102,6 +102,52 @@ export async function sendListingApproved(listing: {
     wrap(`<p>Listing <strong>${listing.ref}</strong> (${listing.name}) was approved and is now live.</p>
       <p>Seller: ${listing.sellerName} (${listing.sellerEmail})</p>`),
     'LISTING_APPROVED_ADMIN').catch(() => {});
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// AUTO-MATCH ALERT (admin) — a new post matches the opposite side
+// ──────────────────────────────────────────────────────────────────────
+export async function sendMatchAlert(data: {
+  newListing: {
+    ref: string; name: string; listingType: string; category: string;
+    sellerName: string; sellerEmail: string; sellerPhone: string; location: string;
+  };
+  matches: Array<{
+    ref: string; name: string; location: string;
+    contactName: string; contactEmail: string; contactPhone: string;
+  }>;
+}) {
+  const isWanted = data.newListing.listingType === 'wanted';
+  // A new WANTED (buyer) request is matched against sellers who have the item;
+  // a new FOR-SALE listing is matched against buyers who want it.
+  const sideLabel = isWanted ? 'BUYER request' : 'SELLER listing';
+  const otherSide = isWanted ? 'seller(s) who may have it' : 'buyer(s) looking for it';
+
+  const rows = data.matches.map((m) => `
+    <tr>
+      <td style="padding:6px;border-top:1px solid #eee;font-weight:700;color:#0057FF">${m.ref}</td>
+      <td style="padding:6px;border-top:1px solid #eee">${m.name}${m.location ? ` · ${m.location}` : ''}</td>
+      <td style="padding:6px;border-top:1px solid #eee">${m.contactName || '—'}</td>
+      <td style="padding:6px;border-top:1px solid #eee">${m.contactEmail ? `<a href="mailto:${m.contactEmail}" style="color:#0057FF">${m.contactEmail}</a>` : ''}${m.contactPhone ? `<br>${m.contactPhone}` : ''}</td>
+    </tr>`).join('');
+
+  await send(ADMIN_EMAIL,
+    `[Auto-Match] ${data.matches.length} ${otherSide} for ${data.newListing.ref} — ${data.newListing.name}`,
+    wrap(`<p><strong>🔗 Potential match found — connect them before the lead goes cold!</strong></p>
+      <p>A new <strong>${sideLabel}</strong> just came in and matches <strong>${data.matches.length}</strong> existing ${otherSide} in the <strong>${data.newListing.category}</strong> category.</p>
+      <p style="margin:14px 0 4px;font-weight:700">New ${sideLabel}</p>
+      <table style="width:100%;border-collapse:collapse;margin:0 0 16px">
+        <tr><td style="padding:6px;color:#64748b">Ref</td><td style="padding:6px;font-weight:700">${data.newListing.ref}</td></tr>
+        <tr><td style="padding:6px;color:#64748b">Item</td><td style="padding:6px">${data.newListing.name}</td></tr>
+        <tr><td style="padding:6px;color:#64748b">Contact</td><td style="padding:6px">${data.newListing.sellerName} — ${data.newListing.sellerEmail}${data.newListing.sellerPhone ? ` — ${data.newListing.sellerPhone}` : ''}</td></tr>
+      </table>
+      <p style="margin:0 0 4px;font-weight:700">Matching ${otherSide}</p>
+      <table style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:13px">
+        <tr style="text-align:left;color:#64748b"><th style="padding:6px">Ref</th><th style="padding:6px">Item</th><th style="padding:6px">Contact</th><th style="padding:6px">Reach</th></tr>
+        ${rows}
+      </table>
+      <p><a href="${SITE_URL}/admin/matchmaking" style="display:inline-block;background:#0057FF;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600">Open Matchmaking →</a></p>`),
+    'MATCH_ALERT').catch(() => {});
 }
 
 // ──────────────────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, MapPin, Building2, PlusCircle, ArrowRight } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { ListingCard } from '@/components/ui/listing-card';
+import { withImageRefs } from '@/lib/listing-images';
 import { parseSlug, buildWhereForSeoPage, seoCopyFor, seoKeywordsFor } from '@/lib/seo-pages';
 
 // Cache each rendered page for 10 minutes (rendered on-demand from the live DB,
@@ -151,7 +152,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {listings.map((l) => <ListingCard key={l.id} listing={JSON.parse(JSON.stringify(l))} />)}
+              {listings.map((l) => <ListingCard key={l.id} listing={JSON.parse(JSON.stringify(withImageRefs(l)))} />)}
             </div>
           )}
         </section>
@@ -170,7 +171,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
 
             <h3 className="text-base font-bold text-[#0D1B3E] mt-5 mb-2">How MedeqX works</h3>
             <p>
-              MedeqX is Saudi Arabia&#39;s trusted B2B marketplace for used and refurbished medical equipment. Listings are reviewed by our team, contact details stay private, and our 4% commission is charged only on confirmed sale (minimum SAR 500).
+              MedeqX is Saudi Arabia&#39;s trusted B2B marketplace for used and refurbished medical equipment. Listings are reviewed by our team, contact details stay private, and our 4% commission — charged to both the buyer and the seller (minimum SAR 500 from each side) — applies only on a confirmed sale.
             </p>
           </div>
         </section>

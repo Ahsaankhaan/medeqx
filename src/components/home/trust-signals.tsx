@@ -127,9 +127,9 @@ export function TrustSignals() {
             {
               icon: Award,
               en: 'Pay only on confirmed sale',
-              enDesc: 'No subscription, no listing fees. 4% commission (min SAR 500) charged only after a successful sale.',
+              enDesc: 'No subscription, no listing fees. 4% from buyer & seller (min SAR 500 each side) charged only after a successful sale.',
               ar: 'الدفع فقط عند البيع',
-              arDesc: 'لا اشتراك ولا رسوم نشر. عمولة 4% (الحد الأدنى 500 ريال) عند إتمام البيع فقط.',
+              arDesc: 'لا اشتراك ولا رسوم نشر. عمولة 4% من المشتري والبائع (بحد أدنى 500 ريال لكل طرف) عند إتمام البيع فقط.',
             },
           ].map(({ icon: Icon, en, enDesc, ar, arDesc }) => (
             <div key={en} className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-7">

@@ -5,7 +5,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.medeqx.com';
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: ['/admin', '/api', '/api/'], crawlDelay: 10 },
+      { userAgent: '*', allow: '/', disallow: ['/admin', '/api', '/api/', '/search'], crawlDelay: 10 },
       // Block heavy commercial scrapers — they crawl aggressively but bring no
       // search traffic, and every hit costs a function invocation.
       { userAgent: 'AhrefsBot', disallow: '/' },

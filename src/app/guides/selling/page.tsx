@@ -23,7 +23,7 @@ const faqSchema = {
     { '@type': 'Question', name: 'What photos should I include on my listing?',
       acceptedAnswer: { '@type': 'Answer', text: 'Include at minimum: (1) full equipment shot from the front, (2) close-up of the OEM model/serial label, (3) control panel / screen showing it powering on, (4) close-up of any wear or damage. For imaging modalities, include a scan of a phantom or test pattern. Hospitals reject listings without serial number photos and condition close-ups.' } },
     { '@type': 'Question', name: 'How does MedeqX charge for selling?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Posting is completely free. We charge a 4% commission on confirmed sale value (minimum SAR 500), invoiced only after the transaction completes. No subscription, no listing fees, no fees for inquiries received.' } },
+      acceptedAnswer: { '@type': 'Answer', text: 'Posting is completely free. We charge a 4% commission from both the buyer and the seller on confirmed sale value (minimum SAR 500 from each side), invoiced only after the transaction completes. No subscription, no listing fees, no fees for inquiries received.' } },
     { '@type': 'Question', name: 'What happens after a buyer inquires?',
       acceptedAnswer: { '@type': 'Answer', text: 'You receive the buyer\'s contact details (name, email, phone, company) immediately by email with the inquiry message. Negotiation, inspection, payment, and delivery are handled directly between you and the buyer. MedeqX is notified when the transaction completes so we can invoice the commission.' } },
   ],
@@ -43,7 +43,7 @@ export default function SellingGuide() {
       >
         <h2>Why sell on MedeqX?</h2>
         <ul>
-          <li><strong>Free to post.</strong> No subscription. No listing fees. 4% commission only on confirmed sale (min SAR 500).</li>
+          <li><strong>Free to post.</strong> No subscription. No listing fees. 4% from buyer &amp; seller on confirmed sale (min SAR 500 each side).</li>
           <li><strong>Verified buyers.</strong> Inquiries come from real hospital procurement officers, biomedical engineers, and clinic managers — not tyre-kickers.</li>
           <li><strong>Privacy.</strong> Your contact details stay private until a qualified buyer inquires.</li>
           <li><strong>GCC reach.</strong> Active buyers in Riyadh, Jeddah, Dammam, Dubai, Doha and across the region.</li>
@@ -140,7 +140,7 @@ export default function SellingGuide() {
 
         <div className="rounded-2xl bg-blue-50 border border-blue-100 p-6 mt-8 not-prose">
           <p className="font-bold text-[#0D1B3E] mb-1">Ready to list?</p>
-          <p className="text-sm text-slate-600 mb-3">Free to post. Reviewed in 24 hours. 4% commission only on sale.</p>
+          <p className="text-sm text-slate-600 mb-3">Free to post. Reviewed in 24 hours. 4% from buyer &amp; seller on sale only.</p>
           <Link href="/post-listing" className="inline-flex items-center gap-1.5 rounded-lg bg-[#0057FF] px-4 py-2 text-xs font-semibold text-white no-underline">
             Post Your Equipment →
           </Link>

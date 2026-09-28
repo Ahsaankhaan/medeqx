@@ -68,6 +68,9 @@ export function PostListingClient() {
   const [consentChecked, setConsentChecked] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // Free-text captured when the user picks "Other" for category / location.
+  const [otherCategory, setOtherCategory] = useState('');
+  const [otherLocation, setOtherLocation] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const toggleService = (id: string) => {
@@ -89,6 +92,8 @@ export function PostListingClient() {
 
   const condition = watch('condition');
   const listingType = watch('listingType');
+  const category = watch('category');
+  const locationValue = watch('location');
 
   const handleImages = async (files: FileList | null) => {
     if (!files || images.length >= 6) return;
@@ -118,11 +123,27 @@ export function PostListingClient() {
       setSubmitError('Please complete the CAPTCHA before submitting.');
       return;
     }
+
+    // Resolve the "Other" free-text choices.
+    let finalLocation = data.location;
+    if (data.location === '__other') {
+      if (!otherLocation.trim()) { setSubmitError('Please type your location.'); return; }
+      finalLocation = otherLocation.trim();
+    }
+    // For the "Others" category we keep the slug (so it still groups/filters as
+    // Others) but record what the item actually is at the top of the description.
+    let finalDescription = data.description;
+    if (data.category === 'others' && otherCategory.trim()) {
+      finalDescription = `Type: ${otherCategory.trim()}\n\n${data.description}`;
+    }
+
     const res = await fetch('/api/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...data,
+        location: finalLocation,
+        description: finalDescription,
         images: JSON.stringify(images),
         services: JSON.stringify(selectedServices),
         recaptchaToken: captchaToken,
@@ -198,12 +219,20 @@ export function PostListingClient() {
                 <div>
                   <FieldLabel>{t.post.fields.category}</FieldLabel>
                   <select {...register('category')} className={inputCls(!!errors.category)}>
-                    <option value="">Select category…</option>
+                    <option value="">{lang === 'ar' ? 'اختر الفئة…' : 'Select category…'}</option>
                     {CATEGORIES.map((c) => (
                       <option key={c.slug} value={c.slug}>{lang === 'ar' ? c.nameAr : c.nameEn}</option>
                     ))}
                   </select>
                   <FieldError message={errors.category?.message} />
+                  {category === 'others' && (
+                    <input
+                      value={otherCategory}
+                      onChange={(e) => setOtherCategory(e.target.value)}
+                      placeholder={lang === 'ar' ? 'يرجى تحديد نوع المعدة / القطعة' : 'Please specify the type of equipment / item'}
+                      className={`${inputCls()} mt-2`}
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -231,10 +260,19 @@ export function PostListingClient() {
                 <div>
                   <FieldLabel>Location</FieldLabel>
                   <select {...register('location')} className={inputCls(!!errors.location)}>
-                    <option value="">Select location…</option>
+                    <option value="">{lang === 'ar' ? 'اختر الموقع…' : 'Select location…'}</option>
                     {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                    <option value="__other">{lang === 'ar' ? 'أخرى (حدد)' : 'Other (specify)'}</option>
                   </select>
                   <FieldError message={errors.location?.message} />
+                  {locationValue === '__other' && (
+                    <input
+                      value={otherLocation}
+                      onChange={(e) => setOtherLocation(e.target.value)}
+                      placeholder={lang === 'ar' ? 'اكتب المدينة / الموقع' : 'Type your city / location'}
+                      className={`${inputCls()} mt-2`}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -409,7 +447,7 @@ export function PostListingClient() {
 
             {/* Commission Notice */}
             <div className="rounded-2xl bg-blue-50 border border-blue-100 px-6 py-4 text-sm text-slate-600">
-              <strong className="text-[#0057FF]">Commission:</strong> MedeqX charges 4% of the confirmed sale value (minimum SAR 500), collected only after a successful transaction.
+              <strong className="text-[#0057FF]">Commission:</strong> MedeqX charges 4% from the buyer and 4% from the seller on the confirmed sale value (minimum SAR 500 from each side), collected only after a successful transaction.
             </div>
 
             {/* Consent */}
@@ -422,7 +460,7 @@ export function PostListingClient() {
                   className="mt-1 h-4 w-4 accent-[#0057FF] shrink-0"
                 />
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  I confirm that: <strong className="text-slate-800">I am authorized to sell this equipment</strong> · All information and photos are accurate · I will mark this listing as Sold immediately once the equipment is sold · I agree to pay MedeqX a <strong className="text-slate-800">4% commission (min SAR 500)</strong> upon a successful sale · I have read and agree to the{' '}
+                  I confirm that: <strong className="text-slate-800">I am authorized to sell this equipment</strong> · All information and photos are accurate · I will mark this listing as Sold immediately once the equipment is sold · I agree to pay MedeqX a <strong className="text-slate-800">4% seller commission (min SAR 500)</strong> upon a successful sale (the buyer pays a separate 4%, min SAR 500) · I have read and agree to the{' '}
                   <a href="/terms" target="_blank" className="text-[#0057FF] underline font-semibold">Terms &amp; Conditions</a>.
                 </p>
               </label>

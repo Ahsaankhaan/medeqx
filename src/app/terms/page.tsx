@@ -71,9 +71,10 @@ export default function TermsPage() {
 
           <Section title="5. Commission & Fees">
             <p>
-              MedeqX charges a commission of <strong>4% of the confirmed sale value</strong>, with a
-              minimum commission of <strong>SAR 500</strong> per transaction. The commission is collected
-              only after a successful, confirmed sale — not upon listing or inquiry.
+              MedeqX charges a commission of <strong>4% of the confirmed sale value</strong> from
+              <strong> both the buyer and the seller</strong>, with a minimum of <strong>SAR 500 from
+              each side</strong> per transaction. The commission is collected only after a successful,
+              confirmed sale — not upon listing or inquiry.
             </p>
             <p className="mt-2">
               Listing on MedeqX is free of charge. No listing fees or subscription fees apply.

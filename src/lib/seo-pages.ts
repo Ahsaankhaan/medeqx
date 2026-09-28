@@ -339,11 +339,11 @@ export function seoCopyFor(p: SeoPage, lang: 'en' | 'ar' = 'en') {
     return lang === 'ar' ? {
       h1: `بيع وشراء المعدات الطبية المستعملة في ${city.nameAr}`,
       title: `معدات طبية مستعملة في ${city.nameAr} | MedeqX`,
-      description: `تصفّح المعدات الطبية المستعملة والمجدّدة المعروضة للبيع في ${city.nameAr}، السعودية. أجهزة الرنين، السونار، أسرّة المستشفيات، كراسي الأسنان، أجهزة التنفس وغيرها. عمولة 4% فقط عند البيع.`,
+      description: `تصفّح المعدات الطبية المستعملة والمجدّدة المعروضة للبيع في ${city.nameAr}، السعودية. أجهزة الرنين، السونار، أسرّة المستشفيات، كراسي الأسنان، أجهزة التنفس وغيرها. عمولة 4% من المشتري والبائع عند البيع.`,
     } : {
       h1: `Used Medical Equipment in ${city.nameEn}`,
       title: `Used Medical Equipment for Sale in ${city.nameEn} — MedeqX`,
-      description: `Browse used and refurbished medical equipment for sale in ${city.nameEn}, Saudi Arabia. MRI, CT, ultrasound, X-ray, hospital beds, dental chairs, ventilators and more from verified sellers. 4% commission only on sale.`,
+      description: `Browse used and refurbished medical equipment for sale in ${city.nameEn}, Saudi Arabia. MRI, CT, ultrasound, X-ray, hospital beds, dental chairs, ventilators and more from verified sellers. 4% from buyer & seller on sale only.`,
     };
   }
 
@@ -351,11 +351,11 @@ export function seoCopyFor(p: SeoPage, lang: 'en' | 'ar' = 'en') {
     return lang === 'ar' ? {
       h1: `${eq.nameAr} مستعمل للبيع في ${city.nameAr}`,
       title: `${eq.nameAr} مستعمل في ${city.nameAr} | MedeqX`,
-      description: `اشترِ ${eq.nameAr} مستعمل أو مجدّد في ${city.nameAr}، السعودية. قوائم موثّقة من المستشفيات والعيادات. خصوصية تامة، عمولة 4% عند البيع فقط.`,
+      description: `اشترِ ${eq.nameAr} مستعمل أو مجدّد في ${city.nameAr}، السعودية. قوائم موثّقة من المستشفيات والعيادات. خصوصية تامة، عمولة 4% من المشتري والبائع عند البيع.`,
     } : {
       h1: `Used ${eq.nameEn} for Sale in ${city.nameEn}`,
       title: `Used ${eq.nameEn} in ${city.nameEn}, Saudi Arabia — MedeqX`,
-      description: `Buy used and refurbished ${eq.nameEn} in ${city.nameEn}, Saudi Arabia. Verified listings from hospitals and clinics. Full privacy, 4% commission only on successful sale.`,
+      description: `Buy used and refurbished ${eq.nameEn} in ${city.nameEn}, Saudi Arabia. Verified listings from hospitals and clinics. Full privacy, 4% from buyer & seller on successful sale.`,
     };
   }
 
@@ -415,7 +415,7 @@ export function seoCopyFor(p: SeoPage, lang: 'en' | 'ar' = 'en') {
     } : {
       h1: `Used ${brand.name} ${eq.nameEn} for Sale`,
       title: `Used ${brand.name} ${eq.nameEn} in Saudi Arabia — MedeqX`,
-      description: `Buy used and refurbished ${brand.name} ${eq.nameEn}. Verified listings across Saudi Arabia and the GCC. Free to post, 4% commission only on confirmed sale.`,
+      description: `Buy used and refurbished ${brand.name} ${eq.nameEn}. Verified listings across Saudi Arabia and the GCC. Free to post, 4% from buyer & seller on confirmed sale.`,
     };
   }
 

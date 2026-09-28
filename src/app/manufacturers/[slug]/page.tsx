@@ -5,6 +5,7 @@ import Script from 'next/script';
 import { ChevronRight, Building2, ArrowRight, PlusCircle } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { ListingCard } from '@/components/ui/listing-card';
+import { withImageRefs } from '@/lib/listing-images';
 import { getManufacturerBySlug, manufacturerAliasFilter, MANUFACTURERS } from '@/lib/manufacturers';
 
 // Cache for 10 minutes (rendered on-demand from the live DB, then reused).
@@ -146,7 +147,7 @@ export default async function ManufacturerPage({ params }: { params: Promise<{ s
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {listings.map((l) => <ListingCard key={l.id} listing={JSON.parse(JSON.stringify(l))} />)}
+              {listings.map((l) => <ListingCard key={l.id} listing={JSON.parse(JSON.stringify(withImageRefs(l)))} />)}
             </div>
           )}
         </section>
@@ -166,7 +167,7 @@ export default async function ManufacturerPage({ params }: { params: Promise<{ s
             </ul>
             <h3 className="text-base font-bold text-[#0D1B3E] mt-5 mb-2">Sell your {m.name} equipment</h3>
             <p>
-              If you have surplus {m.name} equipment to sell — from a single dental chair to a full hospital decommission — list it free on MedeqX. We charge a transparent 4% commission (minimum SAR 500) only when the sale is confirmed.
+              If you have surplus {m.name} equipment to sell — from a single dental chair to a full hospital decommission — list it free on MedeqX. We charge a transparent 4% commission from both the buyer and the seller (minimum SAR 500 from each side) only when the sale is confirmed.
             </p>
           </div>
         </section>

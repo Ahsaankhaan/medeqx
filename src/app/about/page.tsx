@@ -60,7 +60,7 @@ export default function AboutPage() {
         <ul>
           <li><strong>Every listing reviewed.</strong> Our team manually approves each listing before it goes live — no anonymous postings.</li>
           <li><strong>Contact details stay private.</strong> Seller and buyer information is never published. We forward verified inquiries by email only.</li>
-          <li><strong>Pay only on confirmed sale.</strong> No subscription, no listing fees. A transparent 4% commission (minimum SAR 500) charged only after a successful transaction.</li>
+          <li><strong>Pay only on confirmed sale.</strong> No subscription, no listing fees. A transparent 4% commission from both the buyer and the seller (minimum SAR 500 from each side) charged only after a successful transaction.</li>
           <li><strong>Bilingual platform.</strong> Full English + Arabic interface, designed for the GCC healthcare procurement workflow.</li>
           <li><strong>Brokerage on large deals.</strong> For high-value transactions or full hospital decommissions, we offer hands-on brokering, valuation, and cross-border facilitation.</li>
         </ul>

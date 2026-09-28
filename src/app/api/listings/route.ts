@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, generateListingRef } from '@/lib/db';
 import { listingSchema } from '@/lib/validations';
-import { sendListingSubmitted } from '@/lib/email';
+import { sendListingSubmitted, sendMatchAlert } from '@/lib/email';
+import { findListingMatches } from '@/lib/matching';
+import { getCategoryBySlug } from '@/lib/categories';
 import { verifyRecaptcha } from '@/lib/recaptcha';
 
 export const dynamic = 'force-dynamic';
@@ -96,6 +98,35 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {
       console.error('[email error listing]', e);
+    }
+
+    // Auto-matching (#5): the moment a new post arrives, look for the opposite
+    // side (a buyer for a seller, or a seller for a buyer) in the same category
+    // and alert the broker so the lead is acted on immediately. Best-effort.
+    try {
+      const matches = await findListingMatches({
+        id: listing.id,
+        category: listing.category,
+        listingType: listing.listingType,
+        manufacturer: listing.manufacturer,
+      });
+      if (matches.length > 0) {
+        await sendMatchAlert({
+          newListing: {
+            ref: listing.ref,
+            name: listing.name,
+            listingType: listing.listingType,
+            category: getCategoryBySlug(listing.category)?.nameEn ?? listing.category,
+            sellerName: listing.sellerName,
+            sellerEmail: listing.sellerEmail,
+            sellerPhone: listing.sellerPhone,
+            location: listing.location,
+          },
+          matches,
+        });
+      }
+    } catch (e) {
+      console.error('[auto-match]', e);
     }
 
     return NextResponse.json({ success: true, ref: listing.ref, id: listing.id }, { status: 201 });

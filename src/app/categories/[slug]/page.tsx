@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { getCategoryBySlug } from '@/lib/categories';
 import { CategoryClient } from '@/components/category-client';
+import { mapImageRefs } from '@/lib/listing-images';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     where: { status: { in: ['approved', 'sold'] }, category: slug },
   })) > 0;
   const title = `Used & Refurbished ${c.nameEn} for Sale in Saudi Arabia — Riyadh, Jeddah, Dammam`;
-  const description = `${c.descEn} Buy and sell used and refurbished ${c.nameEn.toLowerCase()} on MedeqX. Verified listings across Riyadh, Jeddah, Dammam, Mecca, Medina, Khobar and the GCC. Free to post; 4% commission only on successful sale.`;
+  const description = `${c.descEn} Buy and sell used and refurbished ${c.nameEn.toLowerCase()} on MedeqX. Verified listings across Riyadh, Jeddah, Dammam, Mecca, Medina, Khobar and the GCC. Free to post; 4% from buyer & seller on successful sale (min SAR 500 each side).`;
   return {
     title, description,
     keywords: [
@@ -50,5 +51,5 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     include: { _count: { select: { inquiries: true } } },
   });
 
-  return <CategoryClient category={category} listings={JSON.parse(JSON.stringify(listings))} />;
+  return <CategoryClient category={category} listings={JSON.parse(JSON.stringify(mapImageRefs(listings)))} />;
 }

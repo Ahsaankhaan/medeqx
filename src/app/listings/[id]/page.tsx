@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { ListingDetailClient } from '@/components/listing-detail-client';
+import { withImageRefs } from '@/lib/listing-images';
 import Script from 'next/script';
 import type { Metadata } from 'next';
 import { getCategoryBySlug } from '@/lib/categories';
@@ -41,8 +42,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     '·', listing.condition,
   ].filter(Boolean).join(' ') + '. Buy verified medical equipment on MedeqX — the GCC\'s B2B marketplace.';
 
-  let images: string[] = [];
-  try { const a = JSON.parse(listing.images || '[]'); if (Array.isArray(a)) images = a.slice(0, 4); } catch {}
+  // Count images (without loading the base64 into the tags) and point OpenGraph
+  // at the cached /api/img route so social cards get real photos.
+  let imgCount = 0;
+  try { const a = JSON.parse(listing.images || '[]'); if (Array.isArray(a)) imgCount = a.length; } catch {}
+  const ogImages = imgCount > 0
+    ? Array.from({ length: Math.min(imgCount, 4) }, (_, i) => ({ url: `${SITE}/api/img/${listing.id}/${i}` }))
+    : [{ url: `${SITE}/logo.svg` }];
 
   return {
     title,
@@ -55,9 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description: desc.slice(0, 200),
       url: `${SITE}/listings/${listing.id}`,
       siteName: 'MedeqX',
-      images: images.length > 0
-        ? images.map((src) => ({ url: src.startsWith('data:') ? `${SITE}/logo.svg` : src }))
-        : [{ url: `${SITE}/logo.svg` }],
+      images: ogImages,
     },
     twitter: { card: 'summary_large_image', title, description: desc.slice(0, 200) },
     robots: { index: listing.status === 'approved', follow: true },
@@ -70,8 +74,11 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
   if (!listing) notFound();
 
   const cat = getCategoryBySlug(listing.category);
-  let images: string[] = [];
-  try { const a = JSON.parse(listing.images || '[]'); if (Array.isArray(a)) images = a; } catch {}
+  let imgCount = 0;
+  try { const a = JSON.parse(listing.images || '[]'); if (Array.isArray(a)) imgCount = a.length; } catch {}
+  const schemaImages = imgCount > 0
+    ? Array.from({ length: Math.min(imgCount, 4) }, (_, i) => `${SITE}/api/img/${listing.id}/${i}`)
+    : `${SITE}/logo.svg`;
 
   // Product schema for rich-result eligibility + AI answer engines
   const productSchema = {
@@ -84,7 +91,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
     model: listing.model || undefined,
     productionDate: listing.year ? String(listing.year) : undefined,
     category: cat?.nameEn,
-    image: images.length > 0 && !images[0].startsWith('data:') ? images.slice(0, 4) : `${SITE}/logo.svg`,
+    image: schemaImages,
     itemCondition: {
       new: 'https://schema.org/NewCondition',
       refurbished: 'https://schema.org/RefurbishedCondition',
@@ -124,7 +131,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
     <>
       <Script id="listing-schema" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-      <ListingDetailClient listing={JSON.parse(JSON.stringify(listing))} />
+      <ListingDetailClient listing={JSON.parse(JSON.stringify(withImageRefs(listing)))} />
     </>
   );
 }

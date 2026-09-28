@@ -23,10 +23,10 @@ export const translations = {
     howItWorks: {
       label: 'How It Works',
       title: 'Simple, Transparent Commission',
-      subtitle: 'MedeqX charges a 4% commission on confirmed sale value (minimum SAR 500). Your contact information stays private until a buyer inquiry is matched.',
+      subtitle: 'MedeqX charges a 4% commission from both the buyer and the seller on the confirmed sale value — minimum SAR 500 from each side. Your contact information stays private until a buyer inquiry is matched.',
       step1Title: 'Post Equipment', step1Desc: 'Fill out the listing form. Listing goes into review.',
       step2Title: 'Get Matched', step2Desc: 'Buyers inquire. We forward contact details securely.',
-      step3Title: 'Close the Deal', step3Desc: 'Negotiate directly. Pay 4% commission on confirmed sale.',
+      step3Title: 'Close the Deal', step3Desc: 'Negotiate directly. On a confirmed deal, buyer and seller each pay 4% (min SAR 500).',
       cta1: 'Post Equipment', cta2: 'Learn More',
     },
     listings: {
@@ -64,7 +64,7 @@ export const translations = {
       equipmentDetails: 'Equipment Details', sellerInfo: 'Contact Information', pricing: 'Pricing & Location',
       submit: 'Submit Listing', submitting: 'Submitting…',
       success: 'Listing submitted! Reference: ', successSub: 'Our team will review and approve within 24 hours.',
-      commission: '4% commission on confirmed sale value (minimum SAR 500). Charged only on successful sale.',
+      commission: '4% from the buyer and 4% from the seller on confirmed sale value (minimum SAR 500 from each side). Charged only on a successful sale.',
       fields: {
         name: 'Equipment Name', category: 'Category', manufacturer: 'Manufacturer',
         model: 'Model Number', serial: 'Serial Number', year: 'Year of Manufacture',
@@ -90,7 +90,7 @@ export const translations = {
     footer: {
       tagline: 'Saudi Arabia\'s Premier B2B Medical Equipment Exchange',
       rights: '© 2025 MedeqX. All rights reserved.',
-      commission: 'Commission: 4% on sale value (min SAR 500)',
+      commission: 'Commission: 4% buyer + 4% seller (min SAR 500 each side)',
     },
     categories: { title: 'Browse by Category', subtitle: 'Find equipment across all clinical specialties.', viewAll: 'View All', viewListings: 'View listings', browse: 'Browse' },
     admin: {
@@ -126,10 +126,10 @@ export const translations = {
     howItWorks: {
       label: 'كيف يعمل',
       title: 'عمولة بسيطة وشفافة',
-      subtitle: 'تتقاضى MedeqX عمولة 4% على قيمة البيع المؤكدة (الحد الأدنى 500 ريال). تظل معلومات الاتصال الخاصة بك سرية حتى يتم مطابقة استفسار المشتري.',
+      subtitle: 'تتقاضى MedeqX عمولة 4% من كل من المشتري والبائع على قيمة البيع المؤكدة (الحد الأدنى 500 ريال لكل طرف). تظل معلومات الاتصال الخاصة بك سرية حتى يتم مطابقة استفسار المشتري.',
       step1Title: 'انشر المعدة', step1Desc: 'املأ نموذج القائمة. تخضع القائمة للمراجعة.',
       step2Title: 'احصل على تطابق', step2Desc: 'يقوم المشترون بالاستفسار. نوجّه تفاصيل الاتصال بأمان.',
-      step3Title: 'أتمم الصفقة', step3Desc: 'تفاوض مباشرة. ادفع عمولة 4% عند البيع المؤكد.',
+      step3Title: 'أتمم الصفقة', step3Desc: 'تفاوض مباشرة. عند تأكيد الصفقة، يدفع كل من المشتري والبائع 4% (بحد أدنى 500 ريال).',
       cta1: 'انشر معدة', cta2: 'اعرف المزيد',
     },
     listings: {
@@ -167,7 +167,7 @@ export const translations = {
       equipmentDetails: 'تفاصيل المعدة', sellerInfo: 'معلومات الاتصال', pricing: 'التسعير والموقع',
       submit: 'إرسال القائمة', submitting: 'جارٍ الإرسال…',
       success: 'تم إرسال القائمة! المرجع: ', successSub: 'سيقوم فريقنا بالمراجعة والموافقة خلال 24 ساعة.',
-      commission: 'عمولة 4% على قيمة البيع المؤكدة (الحد الأدنى 500 ريال). تُحصَّل فقط عند إتمام البيع.',
+      commission: 'عمولة 4% من المشتري و4% من البائع على قيمة البيع المؤكدة (الحد الأدنى 500 ريال لكل طرف). تُحصَّل فقط عند إتمام البيع.',
       fields: {
         name: 'اسم المعدة', category: 'الفئة', manufacturer: 'الشركة المصنعة',
         model: 'رقم الموديل', serial: 'الرقم التسلسلي', year: 'سنة الصنع',
@@ -193,7 +193,7 @@ export const translations = {
     footer: {
       tagline: 'منصة تبادل المعدات الطبية B2B الرائدة في المملكة العربية السعودية',
       rights: '© 2025 MedeqX. جميع الحقوق محفوظة.',
-      commission: 'العمولة: 4% من قيمة البيع (الحد الأدنى 500 ريال)',
+      commission: 'العمولة: 4% من المشتري + 4% من البائع (بحد أدنى 500 ريال لكل طرف)',
     },
     categories: { title: 'تصفح حسب الفئة', subtitle: 'اعثر على المعدات في جميع التخصصات السريرية.', viewAll: 'عرض الكل', viewListings: 'عرض القوائم', browse: 'تصفّح' },
     admin: {

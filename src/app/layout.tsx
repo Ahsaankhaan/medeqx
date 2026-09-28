@@ -226,7 +226,7 @@ const faqSchema = {
       name: 'How do I sell used medical equipment in Saudi Arabia?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'You can sell used medical equipment by creating a free listing on MedeqX. Visit medeqx.com/post-listing, add equipment details and photos, and our team will approve your listing within 24 hours. There is no listing fee — you pay only a 4% commission (minimum SAR 500) when the equipment sells.',
+        text: 'You can sell used medical equipment by creating a free listing on MedeqX. Visit medeqx.com/post-listing, add equipment details and photos, and our team will approve your listing within 24 hours. There is no listing fee — you pay a 4% seller commission (minimum SAR 500) when the equipment sells, and the buyer pays a separate 4% (minimum SAR 500).',
       },
     },
     {
@@ -250,7 +250,7 @@ const faqSchema = {
       name: 'What does MedeqX charge?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'MedeqX charges a 4% commission on confirmed sale value (minimum SAR 500). The fee is collected only after a successful transaction; posting a listing and receiving inquiries is free.',
+        text: 'MedeqX charges a 4% commission from both the buyer and the seller on confirmed sale value (minimum SAR 500 from each side). The fee is collected only after a successful transaction; posting a listing and receiving inquiries is free.',
       },
     },
     {
@@ -291,7 +291,7 @@ const faqSchema = {
       name: 'كيف أبيع جهازي الطبي المستعمل في السعودية؟',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'يمكنك بيع المعدات الطبية المستعملة عبر إنشاء قائمة مجانية على MedeqX. ادخل إلى medeqx.com/post-listing وأضف تفاصيل المعدة وصورها، وسيقوم فريقنا بالموافقة خلال 24 ساعة. لا توجد رسوم نشر — تدفع فقط عمولة 4% (بحد أدنى 500 ريال) عند إتمام البيع.',
+        text: 'يمكنك بيع المعدات الطبية المستعملة عبر إنشاء قائمة مجانية على MedeqX. ادخل إلى medeqx.com/post-listing وأضف تفاصيل المعدة وصورها، وسيقوم فريقنا بالموافقة خلال 24 ساعة. لا توجد رسوم نشر — تدفع عمولة بائع 4% (بحد أدنى 500 ريال) عند إتمام البيع، ويدفع المشتري 4% منفصلة (بحد أدنى 500 ريال).',
       },
     },
     {

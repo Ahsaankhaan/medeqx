@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { getCityBySlug, CITIES } from '@/lib/cities';
 import { CATEGORIES } from '@/lib/categories';
 import { CityClient } from '@/components/city-client';
+import { mapImageRefs } from '@/lib/listing-images';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import type { Metadata } from 'next';
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
   })) > 0;
 
   const title = `Buy & Sell Used Medical Equipment in ${c.nameEn} — MedeqX`;
-  const description = `Browse used and refurbished medical equipment for sale in ${c.nameEn}, ${c.country}. MRI, CT, ultrasound, X-ray, hospital beds, dental chairs, ventilators and more from verified hospital and clinic sellers in ${c.nameEn}. Post your equipment free; 4% commission only on sale.`;
+  const description = `Browse used and refurbished medical equipment for sale in ${c.nameEn}, ${c.country}. MRI, CT, ultrasound, X-ray, hospital beds, dental chairs, ventilators and more from verified hospital and clinic sellers in ${c.nameEn}. Post your equipment free; 4% from buyer & seller on sale only.`;
 
   return {
     title,
@@ -109,7 +110,7 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <CityClient
         city={c}
-        listings={JSON.parse(JSON.stringify(listings))}
+        listings={JSON.parse(JSON.stringify(mapImageRefs(listings)))}
         categoryCounts={counts}
         allCategories={CATEGORIES.map((cat) => ({ slug: cat.slug, nameEn: cat.nameEn, nameAr: cat.nameAr, color: cat.color, colorLight: cat.colorLight }))}
         allCities={CITIES.filter((x) => x.slug !== c.slug).slice(0, 8)}

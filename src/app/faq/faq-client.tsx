@@ -23,9 +23,9 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How is the commission calculated?',
-    a: 'MedeqX charges 4% of the confirmed sale value, with a minimum fee of SAR 500. The commission is only collected after a successful, confirmed sale — not on listing or inquiry.',
+    a: 'MedeqX charges 4% of the confirmed sale value from both the buyer and the seller, with a minimum of SAR 500 from each side. The commission is only collected after a successful, confirmed sale — not on listing or inquiry.',
     qAr: 'كيف يتم احتساب العمولة؟',
-    aAr: 'تفرض MedeqX عمولة بنسبة 4% من قيمة البيع المؤكدة، بحد أدنى 500 ريال سعودي.',
+    aAr: 'تفرض MedeqX عمولة بنسبة 4% من قيمة البيع المؤكدة على كل من المشتري والبائع، بحد أدنى 500 ريال لكل طرف. تُحصَّل فقط بعد إتمام البيع المؤكد.',
     group: 'sellers',
   },
   {

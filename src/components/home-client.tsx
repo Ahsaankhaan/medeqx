@@ -113,7 +113,7 @@ export function HomeClient({ listings, stats }: { listings: Listing[]; stats: { 
             {[
               { icon: Activity,    value: stats.total || '0', label: t.hero.statsListings },
               { icon: ShieldCheck, value: '340+',             label: t.hero.statsSellers },
-              { icon: Tag,         value: '7',                label: t.hero.statsCategories },
+              { icon: Tag,         value: CATEGORIES.length,  label: t.hero.statsCategories },
             ].map(({ icon: Icon, value, label }, i) => (
               <div key={label} className={`flex flex-col items-center ${i < 2 ? 'sm:border-r sm:border-white/15 sm:pr-6' : ''}`}>
                 <Icon size={16} className="text-[#7ED4FF] mb-1" />
@@ -158,7 +158,7 @@ export function HomeClient({ listings, stats }: { listings: Listing[]; stats: { 
               <p className="text-[11px] font-bold tracking-widest text-[#0057FF] uppercase mb-1">{t.listings.featured}</p>
               <h2 className="text-2xl font-extrabold text-[#0D1B3E]">{t.listings.available}</h2>
             </div>
-            <Link href="/categories"
+            <Link href="/listings"
               className="hidden sm:flex items-center gap-1.5 rounded-xl border border-[#0057FF]/20 bg-white px-4 py-2 text-sm font-semibold text-[#0057FF] hover:bg-blue-50 transition-colors">
               {t.listings.viewAll} <ArrowRight size={13} />
             </Link>

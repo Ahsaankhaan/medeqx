@@ -50,8 +50,8 @@ export function CityClient({
               </h1>
               <p className="text-slate-500 max-w-2xl text-sm sm:text-base leading-relaxed">
                 {lang === 'ar'
-                  ? `استكشف المعدات الطبية المستعملة والمجدّدة المتاحة في ${name}: أجهزة الرنين المغناطيسي والأشعة المقطعية والسونار، أسرّة المستشفيات وكراسي الأسنان وأجهزة التنفس وغسيل الكلى وغيرها. جميع الإعلانات مراجَعة من قبل فريق MedeqX، وعمولة 4% فقط عند إتمام البيع.`
-                  : `Browse verified used and refurbished medical equipment listings in ${name} — MRI scanners, CT scanners, ultrasound machines, X-ray equipment, hospital beds, dental chairs, ICU ventilators, dialysis machines and more. Every listing reviewed by the MedeqX team. Free to post; 4% commission only on successful sale.`}
+                  ? `استكشف المعدات الطبية المستعملة والمجدّدة المتاحة في ${name}: أجهزة الرنين المغناطيسي والأشعة المقطعية والسونار، أسرّة المستشفيات وكراسي الأسنان وأجهزة التنفس وغسيل الكلى وغيرها. جميع الإعلانات مراجَعة من قبل فريق MedeqX، وعمولة 4% من المشتري والبائع عند إتمام البيع (بحد أدنى 500 ريال لكل طرف).`
+                  : `Browse verified used and refurbished medical equipment listings in ${name} — MRI scanners, CT scanners, ultrasound machines, X-ray equipment, hospital beds, dental chairs, ICU ventilators, dialysis machines and more. Every listing reviewed by the MedeqX team. Free to post; 4% from buyer & seller on successful sale (min SAR 500 each side).`}
               </p>
             </div>
             <Link href="/post-listing"
@@ -122,8 +122,8 @@ export function CityClient({
           </h3>
           <p>
             {lang === 'ar'
-              ? `النشر مجاني تماماً — أنشئ قائمة بمعدتك، ويراجعها فريقنا خلال 24 ساعة. عند إتمام البيع، نأخذ عمولة شفافة قدرها 4% (بحد أدنى 500 ريال) فقط من قيمة الصفقة المؤكدة. تظل بيانات الاتصال الخاصة بك سرية حتى يصلك استفسار من مشترٍ حقيقي.`
-              : `Posting is completely free — list your equipment and our team reviews it within 24 hours. When you make a sale, we take a transparent 4% commission (minimum SAR 500) on confirmed sale value only. Your contact details remain private until a real buyer sends an inquiry.`}
+              ? `النشر مجاني تماماً — أنشئ قائمة بمعدتك، ويراجعها فريقنا خلال 24 ساعة. عند إتمام البيع، نأخذ عمولة شفافة قدرها 4% من كل من المشتري والبائع (بحد أدنى 500 ريال لكل طرف) من قيمة الصفقة المؤكدة. تظل بيانات الاتصال الخاصة بك سرية حتى يصلك استفسار من مشترٍ حقيقي.`
+              : `Posting is completely free — list your equipment and our team reviews it within 24 hours. When you make a sale, we take a transparent 4% commission from both the buyer and the seller (minimum SAR 500 from each side) on confirmed sale value only. Your contact details remain private until a real buyer sends an inquiry.`}
           </p>
           <h3 className="text-base font-bold text-[#0D1B3E] mt-5 mb-2">
             {lang === 'ar' ? `أنواع المعدات الشائعة في ${name}` : `Popular equipment categories in ${name}`}

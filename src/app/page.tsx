@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { HomeClient } from '@/components/home-client';
+import { mapImageRefs } from '@/lib/listing-images';
 
 // Cache the homepage and re-render at most every 5 minutes (ISR) instead of
 // running a function on every visit/crawl. New listings appear within ~5 min.
@@ -23,5 +24,5 @@ export default async function Home() {
     prisma.listing.count({ where: { status: 'pending' } }),
   ]);
 
-  return <HomeClient listings={JSON.parse(JSON.stringify(listings))} stats={{ total, pending }} />;
+  return <HomeClient listings={JSON.parse(JSON.stringify(mapImageRefs(listings)))} stats={{ total, pending }} />;
 }
